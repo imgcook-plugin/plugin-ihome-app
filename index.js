@@ -18,9 +18,13 @@ const generatePlugin = async (option) => {
   if (!data) return { message: '参数不对' };
   const panelDisplay =
     (data.code && data.code.panelDisplay) || data.data.code.panelDisplay;
-  const moduleName =
-    (data.moduleData && data.moduleData.name) || 'Common/UnnamedComponent';
+  const moduleId = data.moduleData && data.moduleData.id;
+  const moduleName = (data.moduleData && data.moduleData.name) || moduleId;
   const componentName = moduleName.split('/')[1] || moduleName;
+
+  if (filePath.indexOf(moduleId) > -1) {
+    filePath = './';
+  }
   filePath = path.join(filePath, componentName);
 
   if (!fse.existsSync(filePath)) {
