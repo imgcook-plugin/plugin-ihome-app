@@ -1,121 +1,72 @@
-/**
- * @name plugin example
- * @param option: { data, filePath, config }
- * - data: module and generate code Data
- * - filePath: Pull file storage directory
- * - config: cli config
+/*
+ * @Author: xiaotian@tangping
+ * @Descriptions:
+ *   ihome 应用文件输出处理
+ *   @param option: { data, filePath, config }
+ *   - data: module and generate code Data
+ *   - filePath: Pull file storage directory
+ *   - config: cli config
+ * @TodoList: 无
+ * @Date: 2021-02-24 16:23:26
+ * @Last Modified by: xiaotian@tangping
+ * @Last Modified time: 2021-02-24 16:35:29
  */
 
 const path = require('path');
-const fse = require('fs-extra');
 const chalk = require('chalk');
+import {
+  replaceCssImport,
+  optimizeFileType,
+  calculateWorkspaceInfo,
+} from './utils';
 
 const generatePlugin = async (option) => {
-  let { data, config, filePath } = option;
-  let result = {
-    errorList: [],
-  };
-  if (!data) return { message: '参数不对' };
-  const panelDisplay =
-    (data.code && data.code.panelDisplay) || data.data.code.panelDisplay;
-  const moduleId = data.moduleData && data.moduleData.id;
-  const moduleName = (data.moduleData && data.moduleData.name) || moduleId;
+  let { data, config, filePath, workspaceFolders } = option;
+  const { id: moduleId, name: moduleName } = data.moduleData;
   const componentName = moduleName.split('/')[1] || moduleName;
 
+  // 处理文件输出路径
   if (filePath.indexOf(moduleId) > -1) {
     filePath = './';
   }
   filePath = path.join(
+    process.cwd(),
     filePath,
     componentName.replace(/^\S/, (s) => s.toUpperCase())
   );
 
-  if (!fse.existsSync(filePath)) {
-    fse.mkdirSync(filePath);
-  }
+  const { workspaceFolder } = calculateWorkspaceInfo(
+    workspaceFolders,
+    filePath
+  );
 
-  data.code.panelDisplay = panelDisplay
+  // 输出文件过滤和重命名
+  data.code.panelDisplay = data.code.panelDisplay
+    // 过滤 css 文件
     .filter((item) => /(\.jsx|\.rpx\.css)$/.test(item.panelName))
     .map((item) => {
       try {
-        let { panelName } = item;
-        // const fileName = panelName.split('.')[0];
-        const type = panelName.split('.').reverse()[0];
-        let fileType = '';
+        let { panelName, panelValue } = item;
+        const fileName = panelName.split('.')[0];
+        const fileType = optimizeFileType(
+          workspaceFolder,
+          panelName.split('.').reverse()[0]
+        );
 
-        if (type === 'jsx') fileType = 'tsx';
-        if (type === 'css') fileType = 'css';
-
-        // const fileType = util.optiFileType(
-        //   workspaceFolder,
-        //   panelName.split('.')[1],
-        //   projectType
-        // );
         panelName = `index.${fileType}`;
+        panelValue = replaceCssImport(panelValue, fileName);
+
         return {
           ...item,
           panelName,
+          panelValue,
         };
-      } catch (error) {}
+      } catch (error) {
+        console.log(chalk.red(error));
+      }
     });
 
-  panelDisplay = data.code.panelDisplay;
-
-  try {
-    let index = 0;
-    for (const item of panelDisplay) {
-      let value = item.panelValue;
-      const { panelName } = item;
-      let outputFilePath = `${filePath}/${panelName}`;
-      if (item && item.filePath) {
-        let str = item.filePath;
-        if (typeof str === 'string') {
-          str =
-            str.substring(str.length - 1) == '/'
-              ? str.substring(0, str.length - 1)
-              : str;
-        }
-        const strArr = str.split('/');
-        let folder = `${option.filePath}`;
-        for (const strItem of strArr) {
-          folder = `${folder}/${strItem}`;
-          if (!fse.existsSync(folder)) {
-            fse.mkdirSync(folder);
-          }
-        }
-        outputFilePath = `${filePath}/${item.filePath}${panelName}`;
-      }
-
-      // Depend on merge processing for package
-      try {
-        if (panelName === 'package.json') {
-          const packagePath = `${filePath}/package.json`;
-          const newPackage = JSON.parse(value) || null;
-          if (newPackage && fse.existsSync(packagePath)) {
-            let packageJson = await fse.readJson(packagePath);
-            if (!packageJson.dependencies) {
-              packageJson.dependencies = {};
-            }
-            const newDependencies = Object.assign(
-              newPackage,
-              packageJson.dependencies
-            );
-            packageJson.dependencies = newDependencies;
-            value = JSON.stringify(packageJson, null, 2);
-          }
-        }
-      } catch (error) {
-        result.errorList.push(error);
-      } finally {
-      }
-      await fse.writeFile(outputFilePath, value, 'utf8');
-      index++;
-    }
-  } catch (error) {
-    result.errorList.push(error);
-  }
-
-  return { data, filePath, config, result };
+  return { data, filePath, config };
 };
 
 module.exports = (...args) => {

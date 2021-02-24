@@ -1,4 +1,3 @@
-
 const childProcess = require('child_process');
 
 /**
@@ -20,7 +19,6 @@ const installPluginSync = async (plugin, dirname) => {
   }
 };
 
-
 module.exports = {
-  installPluginSync
-}
+  installPluginSync,
+};
