@@ -25,7 +25,10 @@ const generatePlugin = async (option) => {
   if (filePath.indexOf(moduleId) > -1) {
     filePath = './';
   }
-  filePath = path.join(filePath, componentName);
+  filePath = path.join(
+    filePath,
+    componentName.replace(/^\S/, (s) => s.toUpperCase())
+  );
 
   if (!fse.existsSync(filePath)) {
     fse.mkdirSync(filePath);
