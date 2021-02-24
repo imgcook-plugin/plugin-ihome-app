@@ -1,6 +1,6 @@
 {
   "name": "@imgcook/plugin-ihome-app",
-  "version": "0.0.7",
+  "version": "0.0.10",
   "description": "plugin template",
   "main": "index.js",
   "scripts": {
