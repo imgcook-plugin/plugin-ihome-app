@@ -25,6 +25,8 @@
     "nyc": "^14.1.1"
   },
   "dependencies": {
-    "@imgcook/plugin-images": "0.1.0-alpha.7"
+    "@imgcook/plugin-images": "0.1.0-alpha.7",
+    "chalk": "^4.1.0",
+    "fs-extra": "^9.1.0"
   }
 }
