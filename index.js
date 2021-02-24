@@ -34,6 +34,33 @@ const generatePlugin = async (option) => {
     fse.mkdirSync(filePath);
   }
 
+  data.code.panelDisplay = panelDisplay
+    .filter((item) => /(\.jsx|\.rpx\.css)$/.test(item.panelName))
+    .map((item) => {
+      try {
+        let { panelName } = item;
+        // const fileName = panelName.split('.')[0];
+        const type = panelName.split('.').reverse()[0];
+        let fileType = '';
+
+        if (type === 'jsx') fileType = 'tsx';
+        if (type === 'css') fileType = 'css';
+
+        // const fileType = util.optiFileType(
+        //   workspaceFolder,
+        //   panelName.split('.')[1],
+        //   projectType
+        // );
+        panelName = `index.${fileType}`;
+        return {
+          ...item,
+          panelName,
+        };
+      } catch (error) {}
+    });
+
+  panelDisplay = data.code.panelDisplay;
+
   try {
     let index = 0;
     for (const item of panelDisplay) {
