@@ -9,7 +9,7 @@
  * @TodoList: 无
  * @Date: 2021-02-24 16:23:26
  * @Last Modified by: xiaotian@tangping
- * @Last Modified time: 2021-02-24 17:15:44
+ * @Last Modified time: 2021-02-24 17:48:01
  */
 
 const path = require('path');
@@ -27,10 +27,10 @@ const generatePlugin = async (option) => {
 
   // 处理文件输出路径
   if (filePath.indexOf(moduleId) > -1) {
-    filePath = './';
+    filePath = process.cwd();
   }
+
   filePath = path.join(
-    process.cwd(),
     filePath,
     componentName.replace(/^\S/, (s) => s.toUpperCase())
   );
