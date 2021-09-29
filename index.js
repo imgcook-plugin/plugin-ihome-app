@@ -8,8 +8,8 @@
  *   - config: cli config
  * @TodoList: 无
  * @Date: 2021-09-29 21:12:09
- * @Last Modified by:   xiaotian.zy
- * @Last Modified time: 2021-09-29 21:12:09
+ * @Last Modified by: xiaotian.zy
+ * @Last Modified time: 2021-09-29 21:19:03
  */
 
 const fse = require('fs-extra');
@@ -17,6 +17,7 @@ const chalk = require('chalk');
 
 const generatePlugin = async (option) => {
   let { data, config, filePath } = option;
+  console.log('data: ', data);
   let result = {
     errorList: [],
   };
