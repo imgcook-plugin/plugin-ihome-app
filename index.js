@@ -9,7 +9,7 @@
  * @TodoList: 无
  * @Date: 2021-09-29 21:12:09
  * @Last Modified by: xiaotian.zy
- * @Last Modified time: 2021-10-05 19:23:01
+ * @Last Modified time: 2021-10-05 20:36:30
  */
 
 const fse = require('fs-extra');
@@ -28,6 +28,9 @@ const generatePlugin = async (option) => {
     fse.mkdirSync(filePath);
   }
 
+  const { name: moduleName } = data.moduleData;
+  const componentName = moduleName.split('/')[1] || moduleName;
+
   try {
     let index = 0;
     for (const item of panelDisplay) {
@@ -35,6 +38,7 @@ const generatePlugin = async (option) => {
       const { panelName } = item;
 
       const strArr = panelName.split('/');
+      strArr.unshift(componentName);
       strArr.pop();
 
       let folder = `${filePath}`;
@@ -45,7 +49,7 @@ const generatePlugin = async (option) => {
         }
       }
 
-      const outputFilePath = `${filePath}/${panelName}`;
+      const outputFilePath = `${filePath}/${componentName}/${panelName}`;
 
       // Depend on merge processing for package
       try {
