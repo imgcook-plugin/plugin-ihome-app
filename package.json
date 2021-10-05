@@ -1,6 +1,6 @@
 {
   "name": "@imgcook/plugin-ihome-app",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "ihome generate plugin",
   "main": "index.js",
   "scripts": {
