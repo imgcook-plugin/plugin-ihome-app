@@ -9,7 +9,7 @@
  * @TodoList: 无
  * @Date: 2021-09-29 21:12:09
  * @Last Modified by: xiaotian.zy
- * @Last Modified time: 2021-09-29 21:19:03
+ * @Last Modified time: 2021-10-05 19:23:01
  */
 
 const fse = require('fs-extra');
@@ -17,7 +17,6 @@ const chalk = require('chalk');
 
 const generatePlugin = async (option) => {
   let { data, config, filePath } = option;
-  console.log('data: ', data);
   let result = {
     errorList: [],
   };
@@ -34,25 +33,19 @@ const generatePlugin = async (option) => {
     for (const item of panelDisplay) {
       let value = item.panelValue;
       const { panelName } = item;
-      let outputFilePath = `${filePath}/${panelName}`;
-      if (item && item.filePath) {
-        let str = item.filePath;
-        if (typeof str === 'string') {
-          str =
-            str.substring(str.length - 1) == '/'
-              ? str.substring(0, str.length - 1)
-              : str;
+
+      const strArr = panelName.split('/');
+      strArr.pop();
+
+      let folder = `${filePath}`;
+      for (const strItem of strArr) {
+        folder = `${folder}/${strItem}`;
+        if (!fse.existsSync(folder)) {
+          fse.mkdirSync(folder);
         }
-        const strArr = str.split('/');
-        let folder = `${option.filePath}`;
-        for (const strItem of strArr) {
-          folder = `${folder}/${strItem}`;
-          if (!fse.existsSync(folder)) {
-            fse.mkdirSync(folder);
-          }
-        }
-        outputFilePath = `${filePath}/${item.filePath}${panelName}`;
       }
+
+      const outputFilePath = `${filePath}/${panelName}`;
 
       // Depend on merge processing for package
       try {
